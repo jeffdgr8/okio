@@ -9,6 +9,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.STARTED
 import org.jetbrains.dokka.gradle.DokkaTask
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -128,6 +129,12 @@ subprojects {
     }
   }
 
+  plugins.withId("org.jetbrains.kotlin.multiplatform") {
+    extensions.getByType<KotlinMultiplatformExtension>().jvmToolchain {
+      (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(17))
+    }
+  }
+
   tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
       jvmTarget = JavaVersion.VERSION_1_8.toString()
@@ -148,5 +155,8 @@ subprojects {
       exceptionFormat = TestExceptionFormat.FULL
       showStandardStreams = false
     }
+    javaLauncher.set(extensions.getByType<JavaToolchainService>().launcherFor {
+      languageVersion.set(JavaLanguageVersion.of(8))
+    })
   }
 }
